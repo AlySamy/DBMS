@@ -1,7 +1,11 @@
 #!/bin/bash 
 
  mainMenue(){
-mkdir -p databases  #create databases folder if not exists
+    if [[ ! -d $DB ]];
+		then mkdir -p databases  #create databases folder if not exists
+				
+				fi
+
 echo -e $blue
 choice=("CreateDataBase" "ListDatabase" "ConnectToDB" "DropDB" "Exit")
 
@@ -38,7 +42,7 @@ function createDatabase {
 	echo -e $grean  "Please enter database name"
 	check_input	#tp che
 
-	DBName=$returnValue		#returnValue is the value from helpersFunction.sh check_string()
+	DBName=$returnValue		
 
 	if [[ ! -d $DB/$DBName ]];
 		then	mkdir $DB/$DBName;
