@@ -23,11 +23,11 @@ insert() {
 		read -p "Enter value of column ${array[0]} : " input
 		    if [ -z $input ];  then
                      echo ""
-		     echo -e $RED  "Primary Key Cann't be Null!!!" 
+		     echo -e $red  "Primary Key Cann't be Null!!!" 
                      echo ""
                      echo -e $blue"back to menu" 
                      echo ""
-                         tablemenu
+                       #  tablemenu
 
               elif [[ $input =~ [a-zA-Z]+$ ]]; then 
                   echo ""
@@ -35,7 +35,7 @@ insert() {
                   echo ""
                   echo -e $blue"back to menu" 
                   echo ""         
-                         tablemenu
+                         # tablemenu
 			elif [ ${#arr[*]} -eq 0 ];    then
 			inputarray[0]=$input 
 
@@ -56,7 +56,7 @@ insert() {
                 echo -e $blue"back to menu" 
                 echo ""
                            
-                         tablemenu
+                        # tablemenu
 	         fi
 	         ((index =$index+1))
 		done
@@ -78,7 +78,7 @@ insert() {
                  echo -e $RED "attention this field will be empty field !!!!"
                  echo ""
                  read -p "Do you agree [y or n] ?  : " ans
-                 if [[ $ans  == 'y' || $ans == 'Y' ]]
+                 if [[ $ans  == 'y' ]]
                  then
                     ((index =$index+1))
                 else   
@@ -92,7 +92,7 @@ insert() {
                 then
 		((index =$index+1))
                 else
-                echo -e $RED you should enter string value
+                echo -e $red "you should enter string value"
                 echo "Please enter your choice"
                 return 1
                 fi
@@ -102,151 +102,18 @@ insert() {
                 then
                 ((index =$index+1))
                 else
-                echo -e $RED you should enter number
+                echo -e $red "you should enter number"
                 echo "Please enter your choice"
                 return 1
                 fi
                 else
-                echo -e $RED you should enter valid value
+                echo -e $RED "you should enter valid value"
                 echo "Please enter your choice"
                 return 1
                 fi
 		done
 	fi    
-
-}
-
-
-
-
-
-
-
-
-
-
-./filename 
-
-function insertintotable(){
-echo -e  $blue
-read -p "Enter Table Name : " table_name   
-	if [ -z $table_name ]; then
-       echo ""
-       echo -e $RED "Enter The Table Name!!!"	
-       echo ""
-       echo "Please enter your choice : "
-	elif [[ -f $table_name  ]]
-        then
-	index=1
-	size=0
-	row=""
-       for tableName in `ls`
-        do
-            if [ $tableName = $table_name ]; then 
-           
-	      echo -e $grean "Table Selected successfully" 
-              echo  -e  $blue "===================================="
-	      echo  -e  $blue "The First Column is primary Key and should be a number"
-	      echo  -e  $blue "======================================================="
-		array=(`awk -F":" '{if (NR>=3) print $3}' .metaData_$tableName`)
-		arr=(`awk -F":" '{print $1}' $tableName`)		
-		size=${#array[*]}
-		read -p "Enter value of column ${array[0]} : " input
-		    if [ -z $input ];  then
-                     echo ""
-		     echo -e $RED  "Primary Key Cann't be Null!!!" 
-                     echo ""
-                     echo -e $blue"back to menu" 
-                     echo ""
-                         tablemenu
-
-              elif [[ $input =~ [a-zA-Z]+$ ]]; then 
-                  echo ""
-                  echo -e $RED "Primary Key accept numbers only!!!" 
-                  echo ""
-                  echo -e $blue"back to menu" 
-                  echo ""         
-                         tablemenu
-			elif [ ${#arr[*]} -eq 0 ];    then
-			inputarray[0]=$input 
-
-               
-			while (($index < $size))
-			do
-			read -p "Enter value of column ${array[index]} : " inputarray[index]
-			((index =$index+1))
-			done
-		else
-                    index=0
-		while (($index < ${#arr[*]}))
-		do
-	       if [ $input = ${arr[index]} ];	then
-                echo ""
-		echo -e $RED "Primary Key must be unique!!!" 
-                echo ""
-                echo -e $blue"back to menu" 
-                echo ""
-                           
-                         tablemenu
-	         fi
-	         ((index =$index+1))
-		done
-
-                index=1
-                row=${inputarray[0]}
-	         inputarray[0]=$input
-		while (($index < $size))
-		do
-		read -p "Enter value of column ${array[index]} : " inputarray[index]
-                
-                let a=$index+3
-
-               value=$(awk -v patt=$a  -F: '{if (NR == patt) print $4}' .metaData_$tableName)
-               
-                if [[ -z ${inputarray[index]}  ]]
-                then
-                 echo ""
-                 echo -e $RED "attention this field will be empty field !!!!"
-                 echo ""
-                 read -p "Do you agree [y or n] ?  : " ans
-                 if [[ $ans  == 'y' || $ans == 'Y' ]]
-                 then
-                    ((index =$index+1))
-                else   
-                   tablemenu
-                fi
-
-                elif [[ $value =~ "str" ]] 
-                then
-               
-		if [[ ${inputarray[index]} =~ ^[a-zA-Z] ]]
-                then
-		((index =$index+1))
-                else
-                echo -e $RED you should enter string value
-                echo "Please enter your choice"
-                return 1
-                fi
-                elif [[ $value =~ "int" ]] 
-                then
-                if [[ ${inputarray[index]} =~ [0-9.]+$ ]]
-                then
-                ((index =$index+1))
-                else
-                echo -e $RED you should enter number
-                echo "Please enter your choice"
-                return 1
-                fi
-                else
-                echo -e $RED you should enter valid value
-                echo "Please enter your choice"
-                return 1
-                fi
-		done
-	fi              
-               
-                		
-	    if [ $? == 0 ]
+    if [ $? == 0 ]
             then
              {
              index=1
@@ -279,31 +146,10 @@ fi
 
 
 
- check_input(){
-
-    returnValue=0	#initialize db name 
-
-    flag=0	#to exit the while loop
 
 
-    while [ $flag == 0 ]
-    do
-    
-        read userInput
-        if [[ $userInput = "" ]]; then
-            echo -e $red "Wrong value Please enter a value with only letters"
 
-             elif [[ $userInput = *[[:space:]]* ]]; then
-	                echo -e $red "wrong value can not contain spaces"
 
-        elif [[ $userInput =~ ^[a-zA-Z]+[0-9]* ]]; then 	
 
-            returnValue=$userInput	# to exit the while loop
-            flag=1
 
-        else # wrong dbname 
-            echo -e $red "Wrong value Please enter a value with only letters"
-        fi
-    done
 
-}
