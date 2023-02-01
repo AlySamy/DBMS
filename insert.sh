@@ -144,6 +144,55 @@ insert() {
 fi
 }
 
+function listtables(){
+    echo -e $grean "Please enter DB name to show all tabels"
+    check_input
+   tableName=$returnValue	
+
+        count="$(ls $tableName | wc -l)"
+         if [ $count -eq 0 ] ; then
+         echo ""
+         echo -e $red "you don't have any tables yet "
+         else 
+         echo ""
+         echo -e $grean  "your tables are " 
+         echo ""
+         ls  $tableName 
+         fi
+         echo ""
+        #tablemenu
+  }
+
+  function droptable(){ 
+    echo -e $red "Enter table name to delete"
+    check_input
+    tableName=$returnValue	
+    if [[ -f $tableName ]]; then
+         rm  $tableName 2</dev/null
+         rm .metaData_$tableName 2</dev/null
+         echo ""
+         echo -e $grean "Table deleted Successfully" 
+         echo ""
+         #tablemenu
+
+     else
+         echo ""
+         echo -e $red "Table $tablename  Not found"
+         echo ""
+         #tablemenu
+ fi
+
+}
+
+function selectall(){
+ echo -e $grean "Enter table name to present data"
+    check_input
+    cat $1
+    echo ""
+ #tablemenu
+}
+
+ 
 
 
 

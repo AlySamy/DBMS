@@ -110,8 +110,6 @@ echo -e $red "can not connect to data base !";  goTomainMenue
 fi
 }
 
-
-
 #function to go back to main menue
  goTomainMenue() {
 echo -e $grean "please choose input"
