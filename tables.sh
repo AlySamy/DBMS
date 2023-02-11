@@ -1,26 +1,25 @@
 #!/bin/bash 
-export LC_ALL=ar_AE.utf8
 #function to go back to main menue
-goTomainMenue() {
-echo "please choose input"
-choices=("BackToMenue" "Exit")
-select result in "${choices[@]}"
-do
-    case $result in
-        "BackToMenue")
-            clear ;  chooseArea
-            ;;  
-        "Exit")
-            clear ; exit
-            ;;
-        *) clear ; echo "Error option " ; goTomainMenue ;;
-    esac
-done
-
+Back_table_menu() {
+	echo "please choose input"
+	choices=("BackToMenu" "Exit")
+	select result in "${choices[@]}"
+	do
+		case $result in
+			"BackToMenu")
+				clear ;  chooseArea
+				;;  
+			"Exit")
+				cd ../../
+				clear ; . "./main.sh"
+				;;
+			*) clear ; echo "Error option " ; Back_table_menu ;;
+		esac
+	done
 }
 
 #check_input
- check_input(){
+check_input(){
 
     returnValue=0	#initialize db name 
 
@@ -35,7 +34,7 @@ done
             echo "Wrong value Please enter a value with letters"
 		elif [[ $userInput = [[:space:]] ]]; then
 	                echo -e $red "wrong value can not contain spaces"
-        elif [[ $userInput =~ ^[a-zA-Z]+[0-9]* ]]; then 	#correct db name
+        elif [[ $userInput =~ ^[a-zA-Z]+[0-9]* ]]; then 	
 
             returnValue=$userInput	# to exit the while loop
             flag=1
@@ -49,49 +48,43 @@ done
 
 Create_Table()
 {
-
-echo "Please enter table name to create: "
-
-check_input	#to invoke this function from helpersFunction.sh
-TableName=$returnValue		#returnValue is the value from helpersFunction.sh check_string()
-
-
-
+	echo "Please enter table name to be created: "
+	check_input	
+	TableName=$returnValue
 	if [[ -f "$TableName" ]]
 	then
 		echo "Error: the table already exsit"
-	#back to main menue 
-	#creattable
+	Back_table_menu
 	else
 		touch $TableName
 		row1="ID:"
 		row2="int:"
-		echo "ID is creat automatic  ==> (PK)"
+		echo "ID is created automatic  ==> (PK)"
 		i=2
 		function AddDataType {
-			echo "Enter Column number $i:"
-			read culomn
-			row1+="$culomn"
+			echo -e $green "Enter Column number $i's name:"
+			read column
+			row1+="$column"
 			echo "please Choose the datatype:"
+			echo -e $blue
 			select datatype in "int" "string"
 			do
 				case $datatype in
 					"int" ) row2+="int"; break;;
 					"string" ) row2+="string"; break;;
-					* ) echo "Invalid choice";
+					* ) echo -e $red "Invalid choice";
 				esac
 			done
-			
-			echo "Insert another column?"
+			echo -e $blue "Insert another column?"
 			select check in "yes" "no"
 			do
 				case $check in
 					"yes" )  ((i=i+1)) ;
 					row1+=":";row2+=":"; 
-					AddDataType ; 
+					AddDataType; 
 					break ;;
 					"no" ) break;;
-					* ) echo "error choice";
+					* ) echo -e $red "error choice";
 				esac
 			done
 		}
@@ -99,9 +92,11 @@ TableName=$returnValue		#returnValue is the value from helpersFunction.sh check_
 		echo $row1>>$TableName
 		echo $row2>>$TableName
 		clear
-        echo "__________________"
-		echo " table created successfully into DB ==> $TableName  :"
-		echo "__________________"
+        echo -e $red "ــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــ"
+		echo -e $green "Table created successfully into DB ==> $TableName  :"
+        echo -e $red "ــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــ"
+		echo -e $blue
+		Back_table_menu
 		fi
 }
 
@@ -132,7 +127,7 @@ TableName=$returnValue		#returnValue is the value from helpersFunction.sh check_
 # 	echo $full_column
 # 	else
 # 	echo "This table already existed"
-# 	goTomainMenue
+# 	Back_table_menu
 # 	fi
 # }
 
@@ -202,10 +197,11 @@ numberOfColumns()
 	resultColNum=0
 	# echo "enter number of columns"
 	read -p "" number
-	if [[ $number =~ ^[0-9]+$ ]]; then
+	if [[ $number =~ ^[0-9]+$ && $number != "" ]]; then
 	resultColNum=$number
 	else
 	echo "please Enter valid number"
+	numberOfColumns
 	fi
 	# check_input
 	# col_num=$returnValue
@@ -214,7 +210,7 @@ numberOfColumns()
 
 List_Tables()
 {
-	ls .
+	ls -F | grep -v /
 }
 
 existed()
@@ -228,18 +224,15 @@ existed()
 }
 
 
-# Select_From_Table()
-# {
-	
-# }
-
 insert(){
-echo -e $blue "enter name of table to insert into"
-check_input
-tableName=$returnValue	
-#read TableName
-if [[ -f "$tableName" ]];
-	then
+	clear
+	echo -e $blue
+	listtables_for_fuctiont
+	echo -e $green "Enter name of table to insert into:"
+	check_input
+	tableName=$returnValue
+	if [[ -f "$tableName" ]];
+		then
 		#count number of record
 		NF=$(awk -F : 'END{print NR}' $tableName)
 		((id = $NF - 1 )) 
@@ -261,7 +254,7 @@ if [[ -f "$tableName" ]];
 					read val
 					while  [[ $val == "" ]] 
 					do
-						echo  "the record must is not empty!"
+						echo  "The record mustn't be empty!"
 						read val
 					done
 				done
@@ -275,13 +268,13 @@ if [[ -f "$tableName" ]];
 		done
 		echo $row>>$tableName
 		
-		echo "The record is inserted to $tableName successfully :)"
-		echo "Insert another record?"
+		echo -e $green "The record is inserted to $tableName successfully :)"
+		echo -e $blue "Insert another record?"
 		select check in "Yes" "No"
 		do
 			case $check in
-				"Yes" ) clear ; insert  ; clear ; break;;
-				"No" )  clear ; break;;
+				"Yes" ) clear ; insert ;;
+				"No" )  clear ; Back_table_menu;;
 				* ) echo "Erorr choice";
 			esac
 		done
@@ -291,9 +284,6 @@ if [[ -f "$tableName" ]];
 		echo -e $blue
 		insert
 	fi
-
-
-
 }
 
 
@@ -301,7 +291,7 @@ appear_select_choises()
 {
 	choice=""
 	clear
-	arr_of_choices=("All" "By_Row" "By_Column")
+	arr_of_choices=("All" "By_Row" "By_Column" "Exit")
 	select choose in "${arr_of_choices[@]}"
 	do
 		case $choose in 
@@ -314,6 +304,9 @@ appear_select_choises()
 			By_Column)
 			Select_By_Column
 			;;
+			Exit)
+			chooseArea
+			;;
 			*)
 			echo "enter valid number "
 		esac
@@ -322,52 +315,74 @@ appear_select_choises()
 
 }
 
+
+
 selectall()
 {
- echo -e $grean "Enter table name to present data"
+	clear
+	listtables_for_fuctiont
+ 	echo -e $green "Enter table name to present data"
     check_input
     tableName=$returnValue
 	sed '3,$!d' $tableName
     echo ""
- #tablemenu
+	Back_table_menu
 }
 
 Select_By_Row()
 {
+	clear
+	listtables_for_fuctiont
 	echo -e $blue
 	getTableName
 	if [[ -f "$tableName" ]]; then
-	echo "enter id to select its data:"
+	echo "Enter id to select its data:"
 	numberOfColumns
 	id=$resultColNum
-	echo -e $grean
+	echo -e $green
 	awk -F: -v var="$id" '$1 == var {print $0}' $tableName
+	echo ""
+	Back_table_menu
 	else
 	    echo -e $red "table $tableName does not exist"
+		appear_select_choises
 	fi
 }
 
 listtables()
 {
+	clear
+	count="$(ls . | wc -l)"
+		if [ $count -eq 0 ] ; then
+			echo -e $red "You don't have any tables yet."
+		else 
+			echo -e $green "Your tables are:" 
+			echo ""
+			ls -p . | grep -v / | grep -v .sh$
+		fi
+		echo -e $blue ""
+	Back_table_menu
+}
+
+listtables_for_fuctiont()
+{
+	clear
         count="$(ls . | wc -l)"
          if [ $count -eq 0 ] ; then
-         echo ""
-         echo -e $red "you don't have any tables yet "
+         echo -e $red "You don't have any tables yet."
          else 
-         echo ""
-         echo -e $grean  "your tables are " 
-         echo ""
-         ls -p . | grep -v /
+         echo -e $blue "Your tables are:" 
+         ls -p . | grep -v / | grep -v .sh$
          fi
-         echo ""
-        #tablemenu
+         echo -e $blue ""
 }
 
 Drop_table_list()
 {
+	
 	echo -e $red
 	clear
-	arr_of_choices=("Drop_Single_table" "Drop_All_Tables")
+	arr_of_choices=("Drop_Single_table" "Drop_All_Tables" "Exit")
 	select choose in "${arr_of_choices[@]}"
 	do
 		case $choose in 
@@ -376,6 +391,9 @@ Drop_table_list()
 			;;
 			Drop_All_Tables)
 			Drop_All_Tables
+			;;
+			Exit)
+			chooseArea
 			;;
 			*)
 			echo "Enter valid number "
@@ -386,26 +404,31 @@ Drop_table_list()
 
 Drop_Table()
 {
+	echo -e $blue "Your tables are : "
+	listtables_for_fuctiont
 	echo -e $red
-	clear
 	getTableName
 	existed $tableName
 	if [[ $result == 0 ]];then
 	clear
-	echo $result
-	echo "not existed";
-	goTomainMenue
+	echo -e $red "Not existed";
+	Back_table_menu
 	else
 	clear
 	echo "Enter (y) to confirm"
 	rm -i -v ./$tableName
-	echo -e $grean
-	goTomainMenue
+	echo -e $green
+	clear
+	echo -e $green "Table deleted Successfuly."
+	echo -e $blue
+	Back_table_menu
 	fi
 }
 
 Drop_All_Tables()
 { 
+	echo -e $blue "Your tables are : "
+	listtables
 	DIRECTORY='./ahmed'
 	echo "Do ou realy want to delete ALL TABLES write (y) to confirm ?!"
 	# read c1
@@ -422,14 +445,14 @@ Drop_All_Tables()
 	clear
 	echo "No Data has been deleted"
 	# echo " اقسم بالله (انت اجدع من ابويا)"
-	goTomainMenue
+	Back_table_menu
 	fi
 }
 
 Delete_From_Table()
 {
 	clear
-	arr_of_choices=("All" "By_Id" "Delete_By_OtherColumn")
+	arr_of_choices=("All" "By_Id" "Delete_By_OtherColumn" "Exit")
 	select choose in "${arr_of_choices[@]}"
 	do
 		case $choose in 
@@ -442,6 +465,9 @@ Delete_From_Table()
 			Delete_By_OtherColumn)
 			Delete_By_OtherColumn
 			;;
+			Exit)
+			clear; chooseArea
+			;;
 			*)
 			echo "enter valid number "
 		esac
@@ -450,63 +476,75 @@ Delete_From_Table()
 }
 
 deleteAllData() {
+	clear
+	listtables_for_fuctiont
 	getTableName
   if [[ -f "$tableName" ]]; then
 	sed -i '3,$d' $tableName
    echo -e $green "all data deleted successfully from $tableName"
+   Back_table_menu
   else
-    echo -e $red "table $tableName does not exist"
-	#manue
+    echo -e $red "Table '$tableName' does not exist"
+   Back_table_menu
   fi
 }
 
 Delete_By_Id()
 {
+	clear
+	listtables_for_fuctiont
 	getTableName
-	  if [[ -f "$tableName" ]]; then
-	
-	echo "enter id to delete its data:"
-	numberOfColumns
-	id=$resultColNum
-	awk -F: -v var="$id" '$1 != var {print $0}' $tableName > tempTable && mv tempTable $tableName
+	if [[ -f "$tableName" ]]; then
+		echo "Enter id to delete its data:"
+		numberOfColumns
+		id=$resultColNum
+		awk -F: -v var="$id" '$1 != var {print $0}' $tableName > tempTable && mv tempTable $tableName
+		clear
+		echo -e $green "Id : $id's data deleted Successfully."
+		echo -e $blue ""
+		Back_table_menu
 	else
-	    echo -e $red "table $tableName does not exist"
+	    echo -e $red "Table $tableName does not exist"
+		Back_table_menu
 	fi
 }
 
 Delete_By_OtherColumn()
 {
+	PS3=">>"
+	clear
+	listtables_for_fuctiont
 	echo -e $red
 	getTableName
-	  if [[ -f "$tableName" ]]; then
-	read -p "enter value you want to delete by: " column
-	
-	# echo "enter id to delete its data:"
-	# numberOfColumns
-	# id=$resultColNum
-	echo "Enter (y) to delete all RECORD with value: $column "
-	read confirm
-	if [[ $confirm == 'y' ]];then
-
-	awk -F: -v var="$column" '{for(i=1; i<=NF; i++) {if($i == var) {next}}} {print $0}' $tableName > tempTable && mv tempTable $tableName
-	echo "Recordes Deleted Successfully"
+	if [[ -f "$tableName" && $tableName != "" ]]; then
+		read -p "Enter value you want to delete by: " column
+		echo "Enter (y) to delete all RECORDS with value: $column "
+		read confirm
+		if [[ $confirm == 'y' ]];then
+		awk -F: -v var="$column" '{for(i=1; i<=NF; i++) {if($i == var) {next}}} {print $0}' $tableName > tempTable && mv tempTable $tableName
+		clear
+		echo -e $green "Recordes Deleted Successfully"
+		Back_table_menu
+		else
+		clear
+		echo -e $green "No Data Deleted"
+		Back_table_menu
+		fi
 	else
-	clear
-	echo "No Data Deleted"
-	goTomainMenue
-	fi
-	else
-	    echo -e $red "table $tableName does not exist"
+		clear
+	    echo -e $red "Table $tableName does not exist"
+		echo -e $blue ""
+		Back_table_menu
 	fi
 }
 
 Update_Table()
 {
-	echo -e $blue
 	clear
+	echo -e $blue
+	listtables_for_fuctiont
 	getTableName
 	existed $tableName
-	#| select choose in
 	if [[ $result != 0 ]];then
 		# awk -F: 'NR==1{for (i=1; i<=NF; i++) printf "%s ", $i; print ""}' $tableName  
 		# awk -F ":" 'NR==1 {for (i=1; i<=NF; i++) {print $i}}' $tableName 
@@ -531,40 +569,106 @@ Update_Table()
 		# 	# esac
 
 		# done
-		clear
-		awk -F: 'NR==1{for (i=1; i<=NF; i++) printf "%s ", $i; print ""}' $tableName
-		echo "Enter the column you want to update on it: "
-		read columnName
-		if [[ $columnName == "ID" ]];then
-			echo "You don't allow to edit on ID"
-			Update_Table
-		else
-		orderOfCol=$(awk -F: -v field_value="$columnName" '$0 ~ field_value {
-    	for (i = 1; i <= NF; i++) {
-        if ($i == field_value) {
-            print i
-            break
+		# clear
+		echo ""
+		echo -e $blue "Columns are:"
+		columns=$(awk -F: 'NR==1{for (i=1; i<=NF; i++) printf "%s ", $i; print ""}' $tableName)
+		echo $columns
+		array_of_columns=($columns)
+		echo ""
+		echo "Enter the column you want to update: "
+		check_input
+		if [[ $returnValue == "ID" ]];then
+			echo -e $red "You don't allow to edit on ID"
+			echo -e $blue
+			Back_table_menu
+		elif [[ " ${array_of_columns[@]} " =~ " $returnValue " ]];then
+			orderOfCol=$(awk -F: -v field_value="$returnValue" '$0 ~ field_value {
+			for (i = 1; i <= NF; i++) {
+			if ($i == field_value) {
+				print i
+				break
+					}
 				}
-			}
-		}' $tableName)
-		echo "Enter ID to update its data: "
-		numberOfColumns
-		id=$resultColNum
-		echo "Old data is: "
-		old_data=$(awk -F: -v var="$id" -v var2="$orderOfCol" '$1 == var {print $var2}' $tableName)
-		echo -e $red
-		echo $old_data
-		echo -e $blue
-		echo "Enter new value of $columnName"
-		read new_Value
-		awk -F":" -v field_num=$orderOfCol -v old_value=$old_data -v new_value=$new_Value '{if ($field_num == old_value) {$field_num=new_value}; OFS=":"; print $0}' $tableName > temp_file && mv temp_file $tableName
-		echo -e $grean
-		echo "Updated Successfuly"
-		echo -e $blue
+			}' $tableName)
+			echo "Enter ID to update its data: "
+			numberOfColumns
+			id=$resultColNum
+
+			IDs=$(awk -F: 'NR >= 3 {printf "%s ", $1} END {print ""}' $tableName)
+			array_of_IDs=($IDs)
+			if [[ $id != "0" && " ${array_of_IDs[@]} " =~ " $id " ]];then
+				echo "Old data is: "
+				old_data=$(awk -F: -v var="$id" -v var2="$orderOfCol" '$1 == var {print $var2}' $tableName)
+				echo -e $red
+				echo $old_data
+				echo -e $blue
+				echo "Enter new value of $returnValue"
+				read new_Value
+				awk -F":" -v field_num=$orderOfCol -v old_value=$old_data -v new_value=$new_Value '{if ($field_num == old_value) {$field_num=new_value}; OFS=":"; print $0}' $tableName > temp_file && mv temp_file $tableName
+				clear
+				echo -e $green
+				echo "Updated Successfuly"
+				echo -e $blue
+				Back_table_menu
+			else
+				echo -e $red "No ID with value $id"
+				echo -e $blue
+				Back_table_menu
+			fi
+		else
+			echo -e $red "This value: $returnValue does not match any column name!"
+			echo -e $blue ""
+			Back_table_menu
 		fi
 	else
-		echo "Table not exicted"
+		clear
+		echo -e $red "Table '$tableName' does not exicted"
+		Back_table_menu
 	fi
+}
+
+Select_By_Column()
+{
+	clear
+	echo -e $blue
+	listtables_for_fuctiont
+	getTableName
+	existed $tableName
+	if [[ $result != "0" ]];then
+		columns=$(awk -F: 'NR==1{for (i=1; i<=NF; i++) printf "%s ", $i; print ""}' $tableName)
+		echo ""
+		echo -e $blue $columns
+		array_of_columns=($columns)
+		echo ""
+		echo "Enter the column you want to select: "
+		check_input
+		if [[ " ${array_of_columns[@]} " =~ " $returnValue " ]];then
+			orderOfCol=$(awk -F: -v field_value="$returnValue" '$0 ~ field_value {
+			for (i = 1; i <= NF; i++) {
+			if ($i == field_value) {
+				print i
+				break
+					}
+				}
+			}' $tableName)
+			clear
+			echo -e $green "Data are:"
+			awk -F: -v order="$orderOfCol" 'NR>=3 {print $order}' $tableName
+			echo -e $blue
+			Back_table_menu
+		else
+			clear
+			echo -e $red "No column with that name: $returnValue"
+			echo -e $blue
+			Back_table_menu
+		fi
+	else
+		echo -e $red "No table with that name: $tableName"
+		echo -e $blue
+		Back_table_menu
+	fi
+
 }
 
 getTableName()
@@ -576,12 +680,14 @@ getTableName()
 
 
 blue='\033[0;34m'
-grean='\033[0;32m'
+green='\033[0;32m'
 red='\033[0;31m'
 
 chooseArea()
 {
+	PS3=">>"
 	clear
+	echo -e $blue
 	echo "Chooce from "
 	arrayOfOpt=("Create_Table" "List_Tables" "Drop_Table" "Insert_into_Table" "Select_From_Table" "Delete_From_Table" "Update_Table" "exit")
 	select choose in "${arrayOfOpt[@]}"
@@ -609,7 +715,7 @@ chooseArea()
 			Update_Table
 			;;
 			exit)
-			exit
+			clear ; . "./main.sh"
 			;;
 			*)
 			echo "Please enter valid number!"

@@ -1,6 +1,8 @@
 #!/bin/bash 
 
  mainMenue(){
+    PS3=">>"
+    clear
     if [[ ! -d $DB ]];
 		then mkdir -p databases  #create databases folder if not exists
 				
@@ -95,7 +97,8 @@ else
 
 #conct to database 
 conactDB() {
-
+    clear
+    listAllDatabase
 echo -e $grean "Please enter DB name to connect"
 check_input
 DBName=$returnValue	
@@ -104,7 +107,7 @@ then
    cd $DB/$DBName
    clear 
    echo -e $grean "Database $DBName was Successfully connected"
-   #data base menue
+   . "../.././tables.sh"
 else
 echo -e $red "can not connect to data base !";  goTomainMenue 
 fi
