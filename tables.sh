@@ -428,9 +428,9 @@ Drop_Table()
 Drop_All_Tables()
 { 
 	echo -e $blue "Your tables are : "
-	listtables
-	DIRECTORY='./ahmed'
-	echo "Do ou realy want to delete ALL TABLES write (y) to confirm ?!"
+	listtables_for_fuctiont
+	# DIRECTORY= "./"
+	echo "Do you realy want to delete ALL TABLES write (y) to confirm ?!"
 	# read c1
 	# echo "متأكد يا سطا ؟"
 	# read c2
@@ -438,13 +438,15 @@ Drop_All_Tables()
 	# echo "y اكتب بقي "
 	read confirm
 	if [[ $confirm == 'y' ]];then
-	for file in $(find $DIRECTORY -type f); do
+	for file in $(find . -type f); do
     	rm -v $file
 	done
+		Back_table_menu
 	else
 	clear
-	echo "No Data has been deleted"
+	echo -e $green "No Data has been deleted"
 	# echo " اقسم بالله (انت اجدع من ابويا)"
+	echo -e $blue
 	Back_table_menu
 	fi
 }
