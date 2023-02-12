@@ -18,14 +18,37 @@ Back_table_menu() {
 	done
 }
 
-#check_input
+existed()
+{
+	result=0
+	if [[ ! -f ./$1 ]];then
+	result=0
+	else
+	result=1
+	fi
+}
+
+numberOfColumns()
+{
+	resultColNum=0
+	# echo "enter number of columns"
+	read -p "" number
+	if [[ $number =~ ^[0-9]+$ && $number != "" ]]; then
+	resultColNum=$number
+	else
+	echo "please Enter valid number"
+	numberOfColumns
+	fi
+	# check_input
+	# col_num=$returnValue
+}
+
+
 check_input(){
 
-    returnValue=0	#initialize db name 
+    returnValue=0	 
 
-    flag=0	#to exit the while loop
-
-
+    flag=0
     while [ $flag == 0 ]
     do
     
@@ -36,10 +59,10 @@ check_input(){
 	                echo -e $red "wrong value can not contain spaces"
         elif [[ $userInput =~ ^[a-zA-Z]+[0-9]* ]]; then 	
 
-            returnValue=$userInput	# to exit the while loop
+            returnValue=$userInput
             flag=1
 
-        else # wrong dbname 
+        else 
             echo "Wrong value Please enter a value with only letters"
         fi
     done
@@ -59,9 +82,9 @@ Create_Table()
 		touch $TableName
 		row1="ID:"
 		row2="int:"
-		echo "ID is created automatic  ==> (PK)"
+		echo "ID is created automaticly  ==> (PK)"
 		i=2
-		function AddDataType {
+		function AddMetaData {
 			echo -e $green "Enter Column number $i's name:"
 			read column
 			row1+="$column"
@@ -81,14 +104,14 @@ Create_Table()
 				case $check in
 					"yes" )  ((i=i+1)) ;
 					row1+=":";row2+=":"; 
-					AddDataType; 
+					AddMetaData; 
 					break ;;
 					"no" ) break;;
 					* ) echo -e $red "error choice";
 				esac
 			done
 		}
-		AddDataType
+		AddMetaData
 		echo $row1>>$TableName
 		echo $row2>>$TableName
 		clear
@@ -100,192 +123,88 @@ Create_Table()
 		fi
 }
 
-# Create_Table()
-# {
-# 	clear
-# 	echo "Enter table name"
-# 	check_input
-# 	new_table=$returnValue
-# 	existed $new_table
-# 	if [[ $result = 0 ]];then
-# 	table_meta_data=".metaData_"$new_table
-# 	touch ./$new_table
-# 	touch ./$table_meta_data
-# 	numberOfColumns
-# 	id_line="id:"
-# 	all_lines=$id_line
-# 	clear
-# 	echo "Hint: First column is id and it is the primary key"
-# 	echo "Enter from column number two"
-# 	for (( i=1; i<=$resultColNum-1; i++ ))
-# 	do
-# 	insert_columns
-# 	done
-# 	  line=${line%?}
-
-# 	echo $all_lines >> ./$table_meta_data
-# 	echo $full_column
-# 	else
-# 	echo "This table already existed"
-# 	Back_table_menu
-# 	fi
-# }
-
-enterColumns()
-{
-	clear
-	full_column=""
-	column=0
-	echo "Hint: First column is id and it is the primary key"
-	echo "Enter column name: "
-	check_input
-	col_name=$returnValue
-	echo "Enter column data type: "
-	check_input
-	col_type=$returnValue
-	if [[ $resultColNum = 1 ]];then
-	column="$col_name($col_type)"
-	else
-	column="$col_name($col_type):"
-	fi
-	full_column+=$column
-}
-
-# Function to insert column names and datatypes
-#   all_lines=""
-  line=""
-insert_columns() {
-#   echo "Enter the column name and datatype separated by a space (e.g. column_name datatype):"
-#   read -a columns
-  
-  # Store the column names and datatypes in one line separated by a colon
-  check_input
-  col_name=$returnValue
-  line="$line$col_name:"
-#   for column in "${columns[@]}"; do
-#     # line=" $line$column:"
-# 	echo $column
-#   done
-  
-  all_lines+=$line
-#   echo $all_lines
-  # Write the line to a file
-}
-
-select_datatype()
-{
-	dataType=""
-	select c in int string
-	do
-		case $c in 
-		int)
-		dataType=int
-		;;
-		string)
-		dataType=string
-		;;
-		*)
-		echo "Enter valid number"
-		;;
-		esac
-
-	done
-}
-
-numberOfColumns()
-{
-	resultColNum=0
-	# echo "enter number of columns"
-	read -p "" number
-	if [[ $number =~ ^[0-9]+$ && $number != "" ]]; then
-	resultColNum=$number
-	else
-	echo "please Enter valid number"
-	numberOfColumns
-	fi
-	# check_input
-	# col_num=$returnValue
-
-}
-
-List_Tables()
-{
-	ls -F | grep -v /
-}
-
-existed()
-{
-	result=0
-	if [[ ! -f ./$1 ]];then
-	result=0
-	else
-	result=1
-	fi
-}
-
 
 insert(){
 	clear
 	echo -e $blue
 	listtables_for_fuctiont
-	echo -e $green "Enter name of table to insert into:"
-	check_input
-	tableName=$returnValue
-	if [[ -f "$tableName" ]];
-		then
-		#count number of record
-		NF=$(awk -F : 'END{print NR}' $tableName)
-		((id = $NF - 1 )) 
-		row="$id:"
-		#count number of filed
-		record=$(awk -F : 'END{print NF}' $tableName)
-		for (( i = 2; i <= $record ; i++ )) 
-		do
-			name=$(awk -F : 'BEGIN {record = '$i'}{if(NR==1){print $record;}}' $tableName)
-			datatype=$(awk -F : 'BEGIN {record = '$i'}{if(NR==2){print $record;}}' $tableName)
+	if [[ $caheckTables != 0 ]];then
+		echo -e $green "Enter name of table to insert into:"
+		check_input
+		tableName=$returnValue
+		if [[ -f "$tableName" ]];
+			then
+			NR=$(awk -F: 'END{print NR}' $tableName)
+			((id = $NR - 1 ))
+			row="$id:"
+			field=$(awk -F : 'END{print NF}' $tableName)
+			for (( i = 2; i <= $field ; i++ )) 
+			do
+				name=$(awk -F : 'BEGIN {field = '$i'}{if(NR==1){print $field;}}' $tableName)
+				datatype=$(awk -F : 'BEGIN {field = '$i'}{if(NR==2){print $field;}}' $tableName)
 
-			echo "Insert values into column ($name):"
-			read val
-			if [[ $datatype == "int" ]]
-			then
-				while ! [[ $val =~ ^[0-9]*$ ]] 
-				do
-					echo  "Error: you enterd a string, please enter an integer !"
-					read val
-					while  [[ $val == "" ]] 
+				echo "Insert values into column ($name):"
+				read val
+				if [[ $datatype == "int" ]]
+				then
+					while ! [[ $val =~ ^[0-9]*$ ]] 
 					do
-						echo  "The record mustn't be empty!"
+						echo  "Error: you enterd a string, please enter an integer !"
 						read val
+						while  [[ $val == "" ]] 
+						do
+							echo  "The record mustn't be empty!"
+							read val
+						done
 					done
-				done
-			fi
-			if [[ i -eq $record ]]
-			then
-				row+="$val"
-			else
-				row+="$val:"
-			fi
-		done
-		echo $row>>$tableName
+				fi
+				if [[ i -eq $field ]]
+				then
+					row+="$val"
+				else
+					row+="$val:"
+				fi
+			done
+			echo $row>>$tableName
+			
+			echo -e $green "The record is inserted to $tableName successfully :)"
+			echo -e $blue "Insert another record?"
+			select check in "Yes" "No"
+			do
+				case $check in
+					"Yes" ) clear ; insert ;;
+					"No" )  clear ; Back_table_menu;;
+					* ) echo "Erorr choice";
+				esac
+			done
 		
-		echo -e $green "The record is inserted to $tableName successfully :)"
-		echo -e $blue "Insert another record?"
-		select check in "Yes" "No"
-		do
-			case $check in
-				"Yes" ) clear ; insert ;;
-				"No" )  clear ; Back_table_menu;;
-				* ) echo "Erorr choice";
-			esac
-		done
-		
+		else
+			echo -e $red "There is no table with this name!"
+			echo -e $blue
+			insert
+		fi
 	else
-		echo -e $red "There is no table with this name!"
+		echo -e $red "No tables founded"
 		echo -e $blue
-		insert
+		Back_table_menu
 	fi
 }
 
+
+listtables()
+{
+	clear
+	count="$(ls . | wc -l)"
+		if [ $count -eq 0 ] ; then
+			echo -e $red "You don't have any tables yet."
+		else 
+			echo -e $green "Your tables are:" 
+			echo ""
+			ls -p . | grep -v / | grep -v .sh$
+		fi
+		echo -e $blue ""
+	Back_table_menu
+}
 
 appear_select_choises()
 {
@@ -308,14 +227,54 @@ appear_select_choises()
 			chooseArea
 			;;
 			*)
-			echo "enter valid number "
+			echo -e $red "enter valid number "
+			echo -e $blue
 		esac
-
 	done
-
 }
 
+Select_By_Column()
+{
+	clear
+	echo -e $blue
+	listtables_for_fuctiont
+	getTableName
+	existed $tableName
+	if [[ $result != "0" ]];then
+		columns=$(awk -F: 'NR==1{for (i=1; i<=NF; i++) printf "%s ", $i; print ""}' $tableName)
+		echo ""
+		echo -e $blue $columns
+		array_of_columns=($columns)
+		echo ""
+		echo "Enter the column you want to select: "
+		check_input
+		if [[ " ${array_of_columns[@]} " =~ " $returnValue " ]];then
+			orderOfCol=$(awk -F: -v field_value="$returnValue" '$0 ~ field_value {
+			for (i = 1; i <= NF; i++) {
+			if ($i == field_value) {
+				print i
+				break
+					}
+				}
+			}' $tableName)
+			clear
+			echo -e $green "Data are:"
+			awk -F: -v order="$orderOfCol" 'NR>=3 {print $order}' $tableName
+			echo -e $blue
+			Back_table_menu
+		else
+			clear
+			echo -e $red "No column with that name: $returnValue"
+			echo -e $blue
+			Back_table_menu
+		fi
+	else
+		echo -e $red "No table with that name: $tableName"
+		echo -e $blue
+		Back_table_menu
+	fi
 
+}
 
 selectall()
 {
@@ -324,7 +283,8 @@ selectall()
  	echo -e $green "Enter table name to present data"
     check_input
     tableName=$returnValue
-	sed '3,$!d' $tableName
+	# sed '1,$!d' $tableName
+	sed -n 'p' $tableName
     echo ""
 	Back_table_menu
 }
@@ -339,40 +299,38 @@ Select_By_Row()
 	echo "Enter id to select its data:"
 	numberOfColumns
 	id=$resultColNum
-	echo -e $green
-	awk -F: -v var="$id" '$1 == var {print $0}' $tableName
-	echo ""
-	Back_table_menu
+	IDs=$(awk -F: 'NR >= 3 {printf "%s ", $1} END {print ""}' $tableName)
+	array_of_IDs=($IDs)
+	if [[ $id != 0 && " ${array_of_IDs[@]} " =~ " $id " ]]
+	then
+		echo -e $green
+		awk -F: -v var="$id" '$1 == var {print $0}' $tableName
+		echo ""
+		Back_table_menu
+	else
+		echo -e $red "Your id: $id dosen't exict"
+		echo -e $blue
+		Back_table_menu
+	fi
 	else
 	    echo -e $red "table $tableName does not exist"
 		appear_select_choises
 	fi
 }
 
-listtables()
-{
-	clear
-	count="$(ls . | wc -l)"
-		if [ $count -eq 0 ] ; then
-			echo -e $red "You don't have any tables yet."
-		else 
-			echo -e $green "Your tables are:" 
-			echo ""
-			ls -p . | grep -v / | grep -v .sh$
-		fi
-		echo -e $blue ""
-	Back_table_menu
-}
+
 
 listtables_for_fuctiont()
 {
 	clear
         count="$(ls . | wc -l)"
+		caheckTables=0
          if [ $count -eq 0 ] ; then
          echo -e $red "You don't have any tables yet."
-         else 
+         else
          echo -e $blue "Your tables are:" 
          ls -p . | grep -v / | grep -v .sh$
+		 caheckTables=1
          fi
          echo -e $blue ""
 }
@@ -500,11 +458,19 @@ Delete_By_Id()
 		echo "Enter id to delete its data:"
 		numberOfColumns
 		id=$resultColNum
-		awk -F: -v var="$id" '$1 != var {print $0}' $tableName > tempTable && mv tempTable $tableName
-		clear
-		echo -e $green "Id : $id's data deleted Successfully."
-		echo -e $blue ""
-		Back_table_menu
+		IDs=$(awk -F: 'NR >= 3 {printf "%s ", $1} END {print ""}' $tableName)
+		array_of_IDs=($IDs)
+		if [[ $id != "0" && " ${array_of_IDs[@]} " =~ " $id " ]];then
+			awk -F: -v var="$id" '$1 != var {print $0}' $tableName > tempTable && mv tempTable $tableName
+			clear
+			echo -e $green "Id : $id's data deleted Successfully."
+			echo -e $blue ""
+			Back_table_menu
+		else
+			echo -e $red "No id with: $id"
+			echo -e $blue
+			Back_table_menu
+		fi
 	else
 	    echo -e $red "Table $tableName does not exist"
 		Back_table_menu
@@ -596,7 +562,6 @@ Update_Table()
 			echo "Enter ID to update its data: "
 			numberOfColumns
 			id=$resultColNum
-
 			IDs=$(awk -F: 'NR >= 3 {printf "%s ", $1} END {print ""}' $tableName)
 			array_of_IDs=($IDs)
 			if [[ $id != "0" && " ${array_of_IDs[@]} " =~ " $id " ]];then
@@ -630,48 +595,6 @@ Update_Table()
 	fi
 }
 
-Select_By_Column()
-{
-	clear
-	echo -e $blue
-	listtables_for_fuctiont
-	getTableName
-	existed $tableName
-	if [[ $result != "0" ]];then
-		columns=$(awk -F: 'NR==1{for (i=1; i<=NF; i++) printf "%s ", $i; print ""}' $tableName)
-		echo ""
-		echo -e $blue $columns
-		array_of_columns=($columns)
-		echo ""
-		echo "Enter the column you want to select: "
-		check_input
-		if [[ " ${array_of_columns[@]} " =~ " $returnValue " ]];then
-			orderOfCol=$(awk -F: -v field_value="$returnValue" '$0 ~ field_value {
-			for (i = 1; i <= NF; i++) {
-			if ($i == field_value) {
-				print i
-				break
-					}
-				}
-			}' $tableName)
-			clear
-			echo -e $green "Data are:"
-			awk -F: -v order="$orderOfCol" 'NR>=3 {print $order}' $tableName
-			echo -e $blue
-			Back_table_menu
-		else
-			clear
-			echo -e $red "No column with that name: $returnValue"
-			echo -e $blue
-			Back_table_menu
-		fi
-	else
-		echo -e $red "No table with that name: $tableName"
-		echo -e $blue
-		Back_table_menu
-	fi
-
-}
 
 getTableName()
 {
@@ -717,7 +640,9 @@ chooseArea()
 			Update_Table
 			;;
 			exit)
-			clear ; . "./main.sh"
+			clear 
+			cd ../../
+			. "./main.sh"
 			;;
 			*)
 			echo "Please enter valid number!"

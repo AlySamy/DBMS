@@ -1,12 +1,11 @@
 #!/bin/bash 
 
  mainMenue(){
-    PS3=">>"
+    PS3=">> "
     clear
     if [[ ! -d $DB ]];
-		then mkdir -p databases  #create databases folder if not exists
-				
-				fi
+		then mkdir -p databases  #create databases folder if not exists			
+    fi
 
 echo -e $blue
 choice=("CreateDataBase" "ListDatabase" "ConnectToDB" "DropDB" "Exit")
@@ -42,9 +41,9 @@ done
 function createDatabase {
 	
 	echo -e $grean  "Please enter database name"
-	check_input	#tp che
+	check_input	
 
-	DBName=$returnValue		
+	DBName=$returnValue
 
 	if [[ ! -d $DB/$DBName ]];
 		then	mkdir $DB/$DBName;
@@ -72,21 +71,22 @@ fi
 echo ""
 
 }
-#function to drop database
+
+
 DropDatabase() {
 
-echo -e $red "Enter Database name to delete"
+echo -e $red "Enter Database name to drop"
 check_input
 DbName=$returnValue	
 
-if [[ -d  "$DB/$DbName" ]]
+if [[ -d "$DB/$DbName" ]]
 then
 
     echo "enter (y) to confirm"
 	rm -r -i $DB/$DbName
 	if [[ ! -d "$DB/$DbName" ]]
 	then
-    	echo -e $grean  "Delete susscesfuly "
+    	echo -e $grean  "Deleted susscesfuly "
 	fi
 
 else
@@ -95,7 +95,7 @@ else
     fi
 }
 
-#conct to database 
+
 conactDB() {
     clear
     listAllDatabase
@@ -109,12 +109,12 @@ then
    echo -e $grean "Database $DBName was Successfully connected"
    . "../.././tables.sh"
 else
-echo -e $red "can not connect to data base !";  goTomainMenue 
+echo -e $red "can not connect to database !";  goTomainMenue 
 fi
 }
 
-#function to go back to main menue
- goTomainMenue() {
+
+goTomainMenue() {
 echo -e $grean "please choose input"
 echo -e $blue
 choices=("BackToMenue" "Exit")
@@ -127,7 +127,7 @@ do
         "Exit")
             clear ; exit
             ;;
-        *) clear ; echo -e $red "Error ooption " ; goTomainMenue ;;
+        *) clear ; echo -e $red "Error option " ; goTomainMenue ;;
     esac
 done
 
@@ -153,10 +153,10 @@ done
 
         elif [[ $userInput =~ ^[a-zA-Z]+[0-9]* ]]; then 	
 
-            returnValue=$userInput	# to exit the while loop
+            returnValue=$userInput
             flag=1
 
-        else # wrong dbname 
+        else 
             echo -e $red "Wrong value Please enter a value with only letters"
         fi
     done
